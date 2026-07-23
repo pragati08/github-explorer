@@ -2,12 +2,12 @@
 
 A React app to search GitHub users, view their profile and repositories, filter by language, sort by stars or recent activity, and bookmark favorite repos — with bookmarks persisted across sessions.
 
-**Live Demo:** [add link after deployment]  
-**Repo:** [your GitHub repo link]
+**Live Demo:** https://githubexplorer-jet.vercel.app/
+**Repo:** https://github.com/pragati08/github-explorer.git
 
 ## Features
 
-- 🔍 Search any GitHub username and view their profile
+- 🔍 Search any GitHub username and view their profile (example: gaearon)
 - 📦 Browse their public repositories
 - 🗂️ Filter repos by programming language
 - ⭐ Sort by star count or most recently updated
