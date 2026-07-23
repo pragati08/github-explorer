@@ -2,24 +2,30 @@ import './App.css'
 import { useState } from 'react';
 import UserProfile from './components/UserProfile';
 import RepoCard from './components/RepoCard';
-import useGitHubRepos from './hooks/useGitHubRepos'; // check this path matches your file exactly
+import useGitHubRepos from './hooks/useGitHubRepos';
 
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [searchedUsername, setSearchedUsername] = useState(null);
   const [languageFilter, setLanguageFilter] = useState('');
+  const [sortOption, setSortOption] = useState('');
 
   const { repos, loading: reposLoading, error: reposError } = useGitHubRepos(searchedUsername); 
-  // which hook, called with what argument?
 
-  // derive unique languages from repos
-  const availableLanguages = [...new Set(repos.map(repo => repo.language).filter(lang => lang !== null))]; 
-  // which field, and think about null values here — some repos have language: null, should that appear in the dropdown?
+  const availableLanguages = [...new Set(repos.map(repo => repo.language).filter(lang => lang !== null))];
 
-  // derive the filtered list
   const filteredRepos = languageFilter === "" 
     ? repos 
     : repos.filter(repo => repo.language === languageFilter);
+
+  const sortedRepos = [...filteredRepos].sort((a, b) => {
+    if (sortOption === "stars") {
+      return b.stargazers_count-a.stargazers_count;
+    } else if (sortOption === "updated") {
+      return new Date(b.updated_at) - new Date(a.updated_at);
+    }
+    return 0;
+  });
 
   function handleKeyDown(e) {
     if (e.key === 'Enter') {
@@ -38,9 +44,8 @@ function App() {
         placeholder="Enter GitHub username..."
       />
       {searchedUsername !== null && <UserProfile username={searchedUsername} />}
-
-      {searchedUsername !== null && reposLoading && <p>Loading repos...</p>} {/* which state? */}
-      {searchedUsername !== null && reposError && <p>Error: {reposError}</p>} {/* which state, and what to show */}
+      {searchedUsername !== null && reposLoading && <p>Loading repos...</p>}
+      {searchedUsername !== null && reposError && <p>Error: {reposError}</p>}
 
       <select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)}>
         <option value="">All Languages</option>
@@ -49,8 +54,14 @@ function App() {
         ))}
       </select>
 
+      <div className="sort-controls">
+        <button onClick={() => setSortOption('stars')}>Sort by Stars</button>
+        <button onClick={() => setSortOption('updated')}>Sort by Last Updated</button>
+        <button onClick={() => setSortOption('')}>Clear Sort</button>
+      </div>
+
       <div className="repo-list">
-        {filteredRepos.map((repo) => (
+        {sortedRepos.map((repo) => (
         <RepoCard key={repo.id} repo={repo} />
       ))}
       </div>

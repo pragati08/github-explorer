@@ -1,34 +1,34 @@
 import useGitHubUser from "../hooks/useGitHubUser";
 
-function UserProfile({ username }) { // what prop is this component expecting?
-  const { user, loading, error } = useGitHubUser(username); // call the hook
+function UserProfile({ username }) {
+  const { user, loading, error } = useGitHubUser(username);
 
   if (loading) {
-    return <p>Loading...</p>; // which state variable makes this show?
+    return <p>Loading...</p>;
   }
 
   if (error) {
-    return <p>Error: {error}</p>; // which state variable, and what do you display inside it?
+    return <p>Error: {error}</p>;
   }
 
   if (!user) {
-    return null; // why might we need this check even after the loading/error checks? think about it
+    return null;
   }
 
   return (
     <div className="profile-card">
-      <img src={user.avatar_url} alt={user.name} /> {/* which two fields from `user`? */}
-      <h2>{user.name}</h2> {/* display name */}
-      <p>@{user.login}</p> {/* github username/login */}
-      <p>{user.bio}</p> {/* bio, if it exists */}
-      <p>📍 {user.location}</p> {/* location */}
-      <p>🏢 {user.company}</p> {/* company */}
+      <img src={user.avatar_url} alt={user.name} />
+      <h2>{user.name}</h2>
+      <p>@{user.login}</p>
+      <p>{user.bio}</p>
+      <p>📍 {user.location}</p>
+      <p>🏢 {user.company}</p>
       <div className="stats">
         <span>{user.followers} followers</span>
         <span>{user.following} following</span>
         <span>{user.public_repos} repos</span>
       </div>
-      <a href={user.html_url} target="_blank" rel="noreferrer">View on GitHub</a> {/* which URL field, and why this one not the other */}
+      <a href={user.html_url} target="_blank" rel="noreferrer">View on GitHub</a>
     </div>
   );
 }
