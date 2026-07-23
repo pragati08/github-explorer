@@ -1,5 +1,5 @@
 import './App.css'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UserProfile from './components/UserProfile';
 import RepoCard from './components/RepoCard';
 import useGitHubRepos from './hooks/useGitHubRepos';
@@ -9,6 +9,16 @@ function App() {
   const [searchedUsername, setSearchedUsername] = useState(null);
   const [languageFilter, setLanguageFilter] = useState('');
   const [sortOption, setSortOption] = useState('');
+  // Initializing state from localStorage
+  const [bookmarks, setBookmarks] = useState(() => {
+  const saved = localStorage.getItem("bookmarks");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+  }, [bookmarks]);
 
   const { repos, loading: reposLoading, error: reposError } = useGitHubRepos(searchedUsername); 
 
@@ -18,7 +28,11 @@ function App() {
     ? repos 
     : repos.filter(repo => repo.language === languageFilter);
 
-  const sortedRepos = [...filteredRepos].sort((a, b) => {
+  const visibleRepos = showBookmarksOnly 
+    ? filteredRepos.filter(repo => bookmarks.some(b => b.id === repo.id)) // keep only repos that ARE bookmarked
+    : filteredRepos;
+
+  const sortedRepos = [...visibleRepos].sort((a, b) => {
     if (sortOption === "stars") {
       return b.stargazers_count-a.stargazers_count;
     } else if (sortOption === "updated") {
@@ -30,6 +44,16 @@ function App() {
   function handleKeyDown(e) {
     if (e.key === 'Enter') {
       setSearchedUsername(inputValue);
+    }
+  }
+
+  function toggleBookmark(repo) {
+    const isBookmarked = bookmarks.some(b => b.id === repo.id);
+    
+    if (isBookmarked) {
+      setBookmarks(bookmarks.filter(b => b.id !== repo.id));
+    } else {
+      setBookmarks([...bookmarks, repo]);
     }
   }
 
@@ -60,9 +84,22 @@ function App() {
         <button onClick={() => setSortOption('')}>Clear Sort</button>
       </div>
 
+      <label>
+        <input 
+          type="checkbox" 
+          checked={showBookmarksOnly}
+          onChange={(e) => setShowBookmarksOnly(e.target.checked)} 
+        />
+        Show only bookmarks
+      </label>
+
       <div className="repo-list">
         {sortedRepos.map((repo) => (
-        <RepoCard key={repo.id} repo={repo} />
+        <RepoCard key={repo.id}
+          repo={repo}
+          isBookmarked={bookmarks.some(b => b.id === repo.id)}
+          onToggleBookmark={()=> {toggleBookmark(repo)}}
+        />
       ))}
       </div>
     </div>

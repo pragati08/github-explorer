@@ -1,4 +1,4 @@
-function RepoCard({ repo }) {
+function RepoCard({ repo, isBookmarked, onToggleBookmark }) {
   return (
     <div className="repo-card">
       <a href={repo.html_url} target="_blank" rel="noreferrer">
@@ -11,6 +11,9 @@ function RepoCard({ repo }) {
         <span>{repo.language || "Not specified"}</span>
       </div>
       <span className="updated-at">Updated: {new Date(repo.updated_at).toLocaleDateString()}</span>
+      <button onClick={onToggleBookmark}>
+        {isBookmarked ? "🔖 Bookmarked" : "🔖 Bookmark"}
+      </button>
     </div>
   );
 }
